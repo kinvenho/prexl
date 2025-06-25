@@ -48,6 +48,7 @@ prexl add <name> <secret>
 prexl gen <name>
 prexl list
 prexl remove <name>
+prexl welcome
 ```
 
 ### Example
@@ -57,6 +58,7 @@ prexl add github JBSWY3DPEHPK3PXP
 prexl gen github
 prexl list
 prexl remove github
+prexl welcome
 ```
 
 You will be prompted for your master password to unlock your secrets. On Windows (cmd.exe), you will see asterisks (`*`) as you type your password. On other platforms or terminals, password input will be hidden (no asterisks).
