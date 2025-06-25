@@ -1,0 +1,12 @@
+LICENSE
+README.md
+setup.py
+prexl/__init__.py
+prexl/__main__.py
+prexl/cli.py
+prexl.egg-info/PKG-INFO
+prexl.egg-info/SOURCES.txt
+prexl.egg-info/dependency_links.txt
+prexl.egg-info/entry_points.txt
+prexl.egg-info/requires.txt
+prexl.egg-info/top_level.txt
