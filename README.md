@@ -2,6 +2,26 @@
 
 Prexl is a fully local, open-source CLI tool for generating TOTP (2FA) codes. Secrets are stored securely, encrypted with a password, and never leave your device.
 
+## How to install and use locally from GitHub
+
+If you find this project on GitHub and want to use it locally:
+
+1. **Clone the repository:**
+   ```sh
+   git clone https://github.com/kinvenho/prexl.git
+   cd prexl
+   ```
+2. **Install the requirements:**
+   ```sh
+   pip install -r requirements.txt
+   ```
+   Or, to install as a CLI tool globally:
+   ```sh
+   pip install .
+   ```
+3. **Usage:**
+   After installation, use the CLI as described below.
+
 ## Features
 - Offline TOTP code generation (pyotp)
 - Secrets encrypted with a password (cryptography)
