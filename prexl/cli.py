@@ -16,9 +16,13 @@ import time
 import sys
 import threading
 import platform
+from rich.console import Console
+from rich.text import Text
 
 SECRETS_PATH = os.path.expanduser('~/.prexl/secrets.json')
 SALT_PATH = os.path.expanduser('~/.prexl/salt')
+
+console = Console()
 
 def derive_key(password: str, salt: bytes) -> bytes:
     kdf = PBKDF2HMAC(
@@ -105,10 +109,60 @@ def getpass_with_timeout(prompt, timeout=90):
         _time.sleep(0.05)
     return pw
 
-@click.group()
-def cli():
+def print_gradient_logo():
+    console.print()
+    console.print()
+    console.print()
+    logo = [
+        "░▒▓███████▓▒░░▒▓███████▓▒░░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        ",
+        "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        ",
+        "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        ",
+        "░▒▓███████▓▒░░▒▓███████▓▒░░▒▓██████▓▒░  ░▒▓██████▓▒░░▒▓█▓▒░        ",
+        "░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        ",
+        "░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        ",
+        "░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓████████▓▒░ ",
+    ]
+    color1 = "#00BFFF"  # DeepSkyBlue
+    color2 = "#FF69B4"  # HotPink
+    for i, line in enumerate(logo):
+        blend = i / (len(logo) - 1)
+        r = int(int(color1[1:3], 16) * (1 - blend) + int(color2[1:3], 16) * blend)
+        g = int(int(color1[3:5], 16) * (1 - blend) + int(color2[3:5], 16) * blend)
+        b = int(int(color1[5:7], 16) * (1 - blend) + int(color2[5:7], 16) * blend)
+        hex_color = f"#{r:02x}{g:02x}{b:02x}"
+        console.print(Text(line, style=f"bold {hex_color}"))
+    console.print()
+    console.print()
+    console.print()
+
+@click.group(invoke_without_command=True)
+@click.pass_context
+def cli(ctx):
     """Prexl: Local 2FA CLI (TOTP)"""
-    pass
+    # First-run detection
+    first_run_flag = os.path.expanduser('~/.prexl/.first_run_complete')
+    is_first_run = not os.path.exists(first_run_flag)
+
+    if ctx.invoked_subcommand is None:
+        print_gradient_logo()
+        if is_first_run:
+            click.secho("Welcome to Prexl!", fg="blue")
+            click.echo() 
+            click.secho("Prexl is a local, open-source CLI tool for generating TOTP (2FA) codes.", fg="blue")
+            click.echo("Your secrets are stored securely and never leave your device." , fg="blue")
+            # Mark first run complete
+            os.makedirs(os.path.dirname(first_run_flag), exist_ok=True)
+            with open(first_run_flag, 'w') as f:
+                f.write('1')
+        console.print()
+        console.print()
+        click.echo("Quick start:\n")
+        click.echo("  prexl add <name> <secret>   # Add a new TOTP secret")
+        click.echo("  prexl gen <name>            # Generate a TOTP code")
+        click.echo("  prexl list                  # List all stored entries")
+        click.echo("  prexl remove <name>         # Remove a stored secret\n")
+        click.echo("For help, run: prexl --help or see the README.md\n")
+    # If a subcommand is invoked, do nothing special
 
 @cli.command()
 @click.argument('name')
@@ -219,4 +273,21 @@ def remove(name):
         save_secrets(secrets, f)
         click.echo(f'Removed entry "{name}".')
     else:
-        click.echo('Aborted.') 
+        click.echo('Aborted.')
+
+@cli.command()
+def welcome():
+    """Show the PREXL welcome and quick start message."""
+    print_gradient_logo()
+    click.secho("Welcome to Prexl!", fg="blue")
+    click.echo() 
+    click.secho("Prexl is a local, open-source CLI tool for generating TOTP (2FA) codes.", fg="blue")
+    click.secho("Your secrets are stored securely and never leave your device.", fg="blue")
+    console.print()
+    console.print()
+    click.echo("Quick start:\n")
+    click.echo("  prexl add <name> <secret>   # Add a new TOTP secret")
+    click.echo("  prexl gen <name>            # Generate a TOTP code")
+    click.echo("  prexl list                  # List all stored entries")
+    click.echo("  prexl remove <name>         # Remove a stored secret\n")
+    click.echo("For help, run: prexl --help or see the README.md\n") 
